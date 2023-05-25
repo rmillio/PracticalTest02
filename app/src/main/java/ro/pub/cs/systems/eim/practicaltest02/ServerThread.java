@@ -4,22 +4,37 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ServerThread extends Thread {
     String port;
     ServerSocket serverSocket = null;
 
     CurrencyInformation data;
+    Boolean isStale;
+
+
 
     public ServerThread(String port) throws IOException {
         this.port = port;
         this.serverSocket = new ServerSocket(Integer.parseInt(port));
         this.data = new CurrencyInformation();
+        this.isStale = true;
+    }
+
+    public Boolean getStale() {
+        return isStale;
+    }
+
+    public void setStale(Boolean stale) {
+        isStale = stale;
     }
 
     public void setData(CurrencyInformation data) {
         this.data = data;
+        this.isStale = false;
+        new TimerThread(this).start();
     }
 
     public CurrencyInformation getData() {

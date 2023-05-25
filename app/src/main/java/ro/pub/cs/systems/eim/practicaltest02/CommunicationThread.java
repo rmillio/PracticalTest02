@@ -54,7 +54,8 @@ public class CommunicationThread extends Thread {
             String currency = bufferedReader.readLine();
             Log.d(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the webservice..." + currency);
             CurrencyInformation data = serverThread.getData();
-            if (data.usd != null && data.eur != null) {
+            if (data.usd != null && data.eur != null && !serverThread.getStale()) {
+                Log.d(Constants.TAG, "[COMMUNICATION THREAD] DATA WAS CACHED");
                 printDataToClient(data, currency);
                 return;
             }
@@ -64,37 +65,31 @@ public class CommunicationThread extends Thread {
 
             String pageSourceCode = "";
 
-
-//            String webPageAddress = Constants.WEB_SERVICE_ADDRESS + "?q=" + city + "&appid=" + Constants.WEB_SERVICE_API_KEY;
-//            HttpURLConnection connection = (HttpURLConnection) new URL(webPageAddress).openConnection();
-//            InputStream in = new BufferedInputStream(connection.getInputStream());
-
             HttpClient httpClient = new DefaultHttpClient();
             HttpGet httpGet = new HttpGet(Constants.WEB_SERVICE_ADDRESS + currency + ".json");
             HttpResponse httpGetResponse = httpClient.execute(httpGet);
 
             Log.d(Constants.TAG, "[COMMUNICATION THREAD] am trecut de execute");
-//            HttpEntity httpGetEntity = httpGetResponse.getEntity();
-//            pageSourceCode = EntityUtils.toString(httpGetEntity);
-//            if (pageSourceCode == null) {
-//                return;
-//            }
-//
-//            JSONObject content = new JSONObject(pageSourceCode);
-////            JSONArray weatherArray = content.getJSONArray(Constants.WEATHER);
-//
-//            JSONObject main = content.getJSONObject(Constants.MAIN);
-//            String usd = content.getString(Constants.USD);
-//            String eur = content.getString(Constants.EUR);
+            HttpEntity httpGetEntity = httpGetResponse.getEntity();
+            pageSourceCode = EntityUtils.toString(httpGetEntity);
+            if (pageSourceCode == null) {
+                return;
+            }
 
-            currencyInformation.usd = "20";
-            currencyInformation.eur = "25";
+            JSONObject content = new JSONObject(pageSourceCode);
+
+            JSONObject main = content.getJSONObject(Constants.BPI);
+            JSONObject usd = main.getJSONObject(Constants.USD);
+            JSONObject eur = main.getJSONObject(Constants.EUR);
+
+            currencyInformation.usd = usd.getString(Constants.RATE);
+            currencyInformation.eur = eur.getString(Constants.RATE);
 
             serverThread.setData(currencyInformation);
             Log.d(Constants.TAG, "[COMMUNICATION THREAD] " + currencyInformation);
             printDataToClient(currencyInformation, currency);
 
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             throw new RuntimeException(e);
         }
 

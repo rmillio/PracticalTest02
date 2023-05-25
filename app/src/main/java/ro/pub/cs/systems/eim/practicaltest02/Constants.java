@@ -13,4 +13,6 @@ public class Constants {
 
         public static final String USD = "USD";
         public static final String EUR = "EUR";
+        public static final String BPI = "bpi";
+        public static final String RATE = "rate";
 }

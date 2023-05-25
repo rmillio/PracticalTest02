@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">PracticalTest02</string>
+    <string name="server">Server</string>
+    <string name="port">port</string>
+    <string name="serverbtn">Create server</string>
+    <string name="client">Client</string>
+    <string name="ip">ip</string>
+    <string name="clientbtn">Create client</string>
+    <string name="currency">Currency</string>
+    <string name="response">Response will appear here</string>
 </resources>
